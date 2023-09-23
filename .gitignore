@@ -14,6 +14,7 @@ Saved/
 *.xcodeproj
 *.xcworkspace
 cmake-build-debug/
+cmake-build-release/
 Content/__ExternalActors__/
 Content/__ExternalObjects__/
 Content/Characters/
@@ -23,5 +24,18 @@ Content/Developers/
 Content/LevelPrototyping/
 Content/StarterContent/
 .DS_Store
+.DS_Store/
 .idea/
+Source/BaseUE/BaseUE.Build.cs
+Source/BaseUE/BaseUE.cpp
+Source/BaseUE/BaseUE.h
+Source/BaseUE/Character.cpp
+Source/BaseUE/Character.h
+Source/BaseUE/BaseUEGameMode.cpp
+Source/BaseUE/BaseUEGameMode.h
+Source/BaseUE/BaseUEPlayerController.cpp
+Source/BaseUE/BaseUEPlayerController.h
+Source/BaseUE/BaseUEEditor.Target.cs
+Source/BaseUE/BaseUE.Target.cs
+
 
