@@ -16,7 +16,7 @@ class BASEUE_API AMyActor02 : public AActor {
         // 👇 用来设置 Actor 的默认值
         AMyActor02(); // AMyActor02 为 AMyActor02 的构造函数, 在类实例化后
 
-        // ⚡️UPROPERTY() 为 UE 的宏(让属性可以在编辑器内进行控制), VisibleAnywhere 为各种全县 ————————————————————
+        // ⚡️UPROPERTY() 为 UE 的宏(让属性可以在编辑器内进行控制), VisibleAnywhere 为可见权限 ————————————————————
         // 👇【声明一个 Actor 组件】记得在声明完后都需要在 .cpp 内赋予初始值！！ UPROPERTY 为宏定义
         UPROPERTY(VisibleAnywhere, Category="My Actor Components") //UPROPERTY() 表示参与到蓝图的反射系统中, 让蓝图可以编辑, 🔥🔥 组件一般就给 VisibleAnywhere, 让编辑器外也可以看见！！
         UStaticMeshComponent* MyStaticMesh;// 👈 设置 Actor 组件为一个静态网格, U 开头是继承 Object 类型, 因为 StaticMesh 不是一个基本类型, 所以用指针 *是一个指针, 🚀 UStaticMeshComponent 指针类型最好不要用 EditAnywhere !!

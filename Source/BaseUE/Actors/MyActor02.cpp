@@ -33,6 +33,7 @@ void AMyActor02::BeginPlay() {
     // 🚩🚩 Actor (BeginPlay 出生点)的初始化位置, GetActorLocation() 为内置方法
     PlacedLocation = GetActorLocation(); //【获取】 Actor 的出生点位置, GetActorLocation 为内置方法
 
+
     // 根据【蓝图类的设置】（开关决定是否回到设置的初始点）
     if(bGotoInitLocation) { // SetActorLocation() 为内置方法
         SetActorLocation(InitLocation); //【设置】默认出生点在 0,0,0  //SetActorLocation(FVector(0.0f)); //默认出生点在 0,0,0

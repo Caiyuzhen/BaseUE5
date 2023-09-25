@@ -29,13 +29,13 @@ Content/StarterContent/
 Source/BaseUE/BaseUE.Build.cs
 Source/BaseUE/BaseUE.cpp
 Source/BaseUE/BaseUE.h
-Source/BaseUE/Character.cpp
-Source/BaseUE/Character.h
+Source/BaseUE/BaseUECharacter.h
+Source/BaseUE/BaseUECharacter.cpp
 Source/BaseUE/BaseUEGameMode.cpp
 Source/BaseUE/BaseUEGameMode.h
 Source/BaseUE/BaseUEPlayerController.cpp
 Source/BaseUE/BaseUEPlayerController.h
-Source/BaseUE/BaseUEEditor.Target.cs
-Source/BaseUE/BaseUE.Target.cs
+Source/BaseUEEditor.Target.cs
+Source/BaseUE.Target.cs
 
 
