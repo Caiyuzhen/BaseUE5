@@ -53,8 +53,12 @@ void AMyActor02::Tick(float DeltaTime) {
 
     if(bShouldMove) {
         FHitResult HitResult; //声明一个碰撞结果(在哪里产生碰撞)
-        AddActorLocalOffset(TickLocationOffset, true, &HitResult); // AddActorLocationOffset 为内置方法, 会更改物体的位置, 值来自 TickLocationOffset 👈这个值是我们定义的, 可以在实例的 detail 面板中进行输入！！！ 第二个参数 true 表示启用扫描(sweep)，可以在不启用模拟物理的情况下让物体跟物体路径上产生碰撞💥！
-        UE_LOG(LogTemp, Warning, TEXT("X: %f, Y: %f, Z: %f"), HitResult.Location.X, HitResult.Location.Y, HitResult.Location.Z); //%f 表示百分之多少的浮点数
+		// 👇 这里乘以 deltaTime 了, 性能会好很多！
+        AddActorLocalOffset(TickLocationOffset * DeltaTime, true, &HitResult); // AddActorLocationOffset 为内置方法, 会更改物体的位置, 值来自 TickLocationOffset 👈这个值是我们定义的, 可以在实例的 detail 面板中进行输入！！！ 第二个参数 true 表示启用扫描(sweep)，可以在不启用模拟物理的情况下让物体跟物体路径上产生碰撞💥！
+
+		// 👇 这里没有乘以 deltaTime , 帧率会低一些, 物体移动速度会变得很慢！！
+        // AddActorLocalOffset(TickLocationOffset, true, &HitResult); // AddActorLocationOffset 为内置方法, 会更改物体的位置, 值来自 TickLocationOffset 👈这个值是我们定义的, 可以在实例的 detail 面板中进行输入！！！ 第二个参数 true 表示启用扫描(sweep)，可以在不启用模拟物理的情况下让物体跟物体路径上产生碰撞💥！
+        // UE_LOG(LogTemp, Warning, TEXT("X: %f, Y: %f, Z: %f"), HitResult.Location.X, HitResult.Location.Y, HitResult.Location.Z); //%f 表示百分之多少的浮点数
     }
 }
 

@@ -38,7 +38,7 @@ class BASEUE_API AMyActor02 : public AActor {
         FVector WorldOrigin; //记录世界原点的位置
 
         // 👇 到处都可以编辑
-        UPROPERTY(EditAnywhere, Category="My Actor Properties | Vector 向量 | 任意可编辑,记录每一帧的偏移的向量, 从而不断的改变物体位置", meta = (ClampMin=-5.0f, ClampMax=5.0f, UIMin=-5.0f, UIMax=5.0f)) //meta 表示元数据, 用来限制输入的值的范围
+        UPROPERTY(EditAnywhere, Category="My Actor Properties | Vector 向量 | 任意可编辑,记录每一帧的偏移的向量, 从而不断的改变物体位置", meta = (ClampMin=-500.0f, ClampMax=500.0f, UIMin=-500.0f, UIMax=500.0f)) //meta 表示元数据, 用来限制输入的值的范围
         FVector TickLocationOffset; //用来记录每一帧的偏移量的向量！
 
         // 👇 到处都可以编辑

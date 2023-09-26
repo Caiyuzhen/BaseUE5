@@ -23,6 +23,11 @@ class BASEUE_API AMyPawn : public APawn {
 			// 👇给 Pawn 类设置摄像机： ————————————————————
 			UPROPERTY(VisibleAnywhere, Category="My MyPawn Components")
 			class UCameraComponent* MyCamera; //* 为解引用, 把解引用后的值给到 MyCamera, 也就是说 MyCamera 为一个指针变量, 指向 UCameraComponent 类型的变量
+
+			// 👇 【键盘事件三】最大的移动速度
+			UPROPERTY(VisibleAnywhere, Category="My MyPawn Movement")
+			float MaxSpeed; //最大的速度
+
 			
 
 	protected:
@@ -39,6 +44,11 @@ class BASEUE_API AMyPawn : public APawn {
 
 	// 👇 处理轴事件（用键盘控制物体） ———————————————————————————————————————————————————————————————————
 	private:
+
+		// 👇【声明键盘事件】
 		void MoveForward(float value);
 		void MoveRight(float value);
+
+		// 👇 初始化速度(偏移量）变量, 不需要参与反射系统
+		FVector Velocity; 
 };

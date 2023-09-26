@@ -36,35 +36,43 @@ AMyPawn::AMyPawn() {
 
 	// 【四】将摄像机设置为默认的玩家控制器 player0 为默认玩家
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+	// 👇 初始化移动的速度变量倍率、移动的偏移量, Velocity 为 .h 内定义的移动偏移量
+	MaxSpeed = 100.0f;
+	Velocity = FVector::ZeroVector; // 等同于 Velocity = FVector(0.0f)
 }
+
 
 // Called when the game starts or when spawned
 void AMyPawn::BeginPlay() {
 	Super::BeginPlay();
-	
 }
+
 
 // Called every frame
-void AMyPawn::Tick(float DeltaTime) {
+void AMyPawn::Tick(float DeltaTime) { // DeltaTime 为两帧之间的间隔值, 可以保证移动的帧流畅性
 	Super::Tick(DeltaTime);
-
+	AddActorLocalOffset(Velocity * DeltaTime, true); // * DeltaTime 为让物体的移动跟帧率脱绑, true 为详细的扫描
 }
+
 
 // AMyPawn 的键盘输入事件
 void AMyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// 👇将键盘输入事件跟轴事件进行绑定绑定！ ———————————————————————————————————————————————————————————————————
-	PlayerInputComponent.BindAxis(TEXT("MoveForward"), this, &AMyPawn::MoveForward) //MoveForward 为 Axis 的名字, this 为绑定到当前类 &AMyPawn::MoveForward 表示函数的引用
-	PlayerInputComponent.BindAxis(TEXT("MoveRight"), this, &AMyPawn::MoveRight) //MoveForward 为 Axis 的名字, this 为绑定到当前类 &AMyPawn::MoveForward 表示函数的引用
+	// 👇【键盘事件一】将键盘输入事件跟轴事件进行绑定绑定！ ———————————————————————————————————————————————————————————————————
+	PlayerInputComponent -> BindAxis(TEXT("MoveForward"), this, &AMyPawn::MoveForward); //MoveForward 为 Axis 的名字, this 为绑定到当前类 &AMyPawn::MoveForward 表示函数的引用
+	PlayerInputComponent -> BindAxis(TEXT("MoveRight"), this, &AMyPawn::MoveRight); //MoveForward 为 Axis 的名字, this 为绑定到当前类 &AMyPawn::MoveForward 表示函数的引用
 }
 
 
-// 👇 处理轴事件（在 AMyPawn::SetupPlayerInputComponent 内将键盘输入跟轴事件绑定后, 👇下面具体实现用键盘来控制物体）=> 具体实现 ———————————————————————————————————————————————————————————————————
-void AMyPawn::MoveForward(float value) {
-	
+// 👇 【键盘事件二】处理轴事件（在 AMyPawn::SetupPlayerInputComponent 内将键盘输入跟轴事件绑定后, 👇下面具体实现用键盘来控制物体）=> 具体实现 ———————————————————————————————————————————————————————————————————
+void AMyPawn::MoveForward(float Value) {
+	// 这里边仅更改 Velocity, 真正调用 AddActorLocalOffset 是在上边的 Tick , 因为要用到 DeltaTime 来提升帧的流畅性
+	Velocity.X = FMath::Clamp(Value, -1.0f, 1.0f) * MaxSpeed; // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入
 }
 
-void AMyPawn::MoveRight(float value) {
-
+void AMyPawn::MoveRight(float Value) {
+	// 这里边仅更改 Velocity, 真正调用 AddActorLocalOffset 是在上边的 Tick , 因为要用到 DeltaTime 来提升帧的流畅性
+	Velocity.Y = FMath::Clamp(Value, -1.0f, 1.0f) * MaxSpeed; // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入的参数固定在 -0.1 ~ 1.0 之间
 }
