@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 
 // 创建一个 Pawn 类
@@ -24,17 +25,27 @@ AMyPawn::AMyPawn() {
 
 
 	// 👇初始化摄像机 ———————————————————————————————————————————————————————————————————
-	// 【一】创建摄像机
+	// 【一】设置摄像机的悬臂（可以掠过障碍物）
+	MySpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("MySpringArm"));
+	MySpringArm -> SetupAttachment(MyStaticMesh); // 表示把 悬臂(MySpringArm) 附着到 元素(MyStaticMesh）上
+	MySpringArm -> SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f)); // 🌟RelativeRotation 是变量, 所以是赋值形式！ 表示摄像机的相对旋转, FRotator(-45.0f, 0.0f, 0.0f) 表示摄像机的旋转角度
+	MySpringArm -> TargetArmLength = 400.0f; // 摄像机的长度
+	MySpringArm -> bEnableCameraLag = true; // 摄像机是否开启平滑跟随
+	MySpringArm -> CameraLagSpeed = 3.0f; // 摄像机平滑跟随的速度
+	
+
+	// 【二】创建摄像机
 	MyCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("MyCamera"));
 
-	// 【二】将摄像机挂载到根组件上
-	MyCamera -> SetupAttachment(GetRootComponent()); // GetRootComponent 会返回 RootComponent
+	// 【三】将摄像机挂载到根组件上, GetRootComponent() 为附着到根组件 | MySpringArm 表示附着到悬臂上
+	MyCamera -> SetupAttachment(MySpringArm);
+	// MyCamera -> SetupAttachment(GetRootComponent()); // GetRootComponent 会返回 RootComponent
 
-	// 【三】设置相机跟 Pawn 类的相对位置 （让摄像机跟随主体物跑）
-	MyCamera -> SetRelativeLocation(FVector(-300.0f, 0.0f, 300.0f)); //相对于父组件的位置, 父组件为 SetupAttachment 的那个对象, 也就是 RootComponent, 一开始是 0,0,0, 但是摄像机要拉远一点, 因此设置为 FVector(-300.0f, 0.0f, 300.0f)
-	MyCamera -> SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f));
+	// 【四】设置相机跟 Pawn 类的相对位置 （让摄像机跟随主体物跑） | 如果上面设置了【悬臂】, 这里就不用设置相对位置跟旋转了, 因为要【把摄像机附着到悬臂上】!
+	// MyCamera -> SetRelativeLocation(FVector(-300.0f, 0.0f, 300.0f)); //相对于父组件的位置, 父组件为 SetupAttachment 的那个对象, 也就是 RootComponent, 一开始是 0,0,0, 但是摄像机要拉远一点, 因此设置为 FVector(-300.0f, 0.0f, 300.0f)
+	// MyCamera -> SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f)); // 摄像机旋转 45 度, 用 FRotator
 
-	// 【四】将摄像机设置为默认的玩家控制器 player0 为默认玩家
+	// 【五】将摄像机设置为默认的玩家控制器 player0 为默认玩家
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	// 👇 初始化移动的速度变量倍率、移动的偏移量, Velocity 为 .h 内定义的移动偏移量

@@ -21,8 +21,12 @@ class BASEUE_API AMyPawn : public APawn {
 
 
 			// 👇给 Pawn 类设置摄像机： ————————————————————
+			UPROPERTY(VisibleAnywhere, Category="My MyPawn Components") //指针最好都是 VisibleAnywhere
+			class USpringArmComponent* MySpringArm;
+
 			UPROPERTY(VisibleAnywhere, Category="My MyPawn Components")
 			class UCameraComponent* MyCamera; //* 为解引用, 把解引用后的值给到 MyCamera, 也就是说 MyCamera 为一个指针变量, 指向 UCameraComponent 类型的变量
+
 
 			// 👇 【键盘事件三】最大的移动速度
 			UPROPERTY(VisibleAnywhere, Category="My MyPawn Movement")
