@@ -32,6 +32,15 @@ class BASEUE_API AMyPawn : public APawn {
 			UPROPERTY(VisibleAnywhere, Category="My MyPawn Movement")
 			float MaxSpeed; //最大的速度
 
+			// 👇 这里的 * 表示解引用, 将 UStaticMeshComponent 这个指针的值给到 MyStaticMesh, FORCEINLINE 表示在编译时会进行优化
+			FORCEINLINE UStaticMeshComponent* GetStaticMeshComponent() {
+				return MyStaticMesh; // 📦📦 用 GetStaticMeshComponent() 函数来返回【默认根组件 MyStaticMesh】
+			}
+
+			FORCEINLINE USpringArmComponent* GetSpringArmComponent() {
+				return MySpringArm; // 📦📦 用 GetStaticMeshComponent() 函数来返回【初始化的摄像机 MySpringArm】
+			}
+ 
 			
 
 	protected:
