@@ -15,11 +15,13 @@ AMyPawn::AMyPawn() {
 	PrimaryActorTick.bCanEverTick = true;
 
 	// 👇初始化一个 Pawn 类： 蓝图类里边的组件结构 (RootComponent -> MyStaticMesh) ———————————————————————————————————————————————————————————————————
-	// 【一】创建默认根组件
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent")); // CreateDefaultSubobject：创建默认子对象, USenceComponent：场景组件作为根组件
+	// // 【一】创建默认根组件 -> 🚀由于默认创建的根组件无法设置 detail 属性(不是 visiableAnywhere), 所以下面就先创建 Mesh 静态网格体, 然后再把根组件 = 这个 Mesh ！就能把 Mesh 设置为默认的根组件了！(🌟好处是可以具备 sweep 属性, 这样就可以设置给这个根组件设置物理碰撞属性！)
+	// RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent")); // CreateDefaultSubobject：创建默认子对象, USenceComponent：场景组件作为根组件
 
-	// 【二】创建 UStaticMeshComponent
+	// 【二】创建 UStaticMeshComponent -> 静态网格
 	MyStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MyStaticMesh"));
+	RootComponent = MyStaticMesh;
+	MyStaticMesh -> SetCollisionProfileName(TEXT("Pawn")); //🌟设置 Mesh 的预设继承 Pawn 的碰撞预设！！也可以在蓝图内进行设置
 
 	// 【三】将创建好的 UStaticMeshComponent 挂载到【根组件】上, -> 为访问类里边的成员变量
 	MyStaticMesh -> SetupAttachment(GetRootComponent()); // SetupAttachment：挂载到根组件上, -> 表示指针调用方法, GetRootComponent 会返回 RootComponent
@@ -91,10 +93,10 @@ void AMyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 // 👇 【键盘事件二】处理轴事件（在 AMyPawn::SetupPlayerInputComponent 内将键盘输入跟轴事件绑定后, 👇下面具体实现用键盘来控制物体）=> 具体实现 ———————————————————————————————————————————————————————————————————
 void AMyPawn::MoveForward(float Value) {
 	// 这里边仅更改 Velocity, 真正调用 AddActorLocalOffset 是在上边的 Tick , 因为要用到 DeltaTime 来提升帧的流畅性
-	Velocity.X = FMath::Clamp(Value, -1.0f, 1.0f) * MaxSpeed; // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入
+	Velocity.X = FMath::Clamp(Value, -16.0f, 16.0f) * MaxSpeed; // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入
 }
 
 void AMyPawn::MoveRight(float Value) {
 	// 这里边仅更改 Velocity, 真正调用 AddActorLocalOffset 是在上边的 Tick , 因为要用到 DeltaTime 来提升帧的流畅性
-	Velocity.Y = FMath::Clamp(Value, -1.0f, 1.0f) * MaxSpeed; // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入的参数固定在 -0.1 ~ 1.0 之间
+	Velocity.Y = FMath::Clamp(Value, -16.0f, 16.0f) * MaxSpeed; // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入的参数固定在 -0.1 ~ 1.0 之间
 }
