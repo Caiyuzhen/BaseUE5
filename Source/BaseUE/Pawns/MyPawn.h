@@ -30,7 +30,7 @@ class BASEUE_API AMyPawn : public APawn {
 
 			// 👇 【键盘事件三】最大的移动速度
 			UPROPERTY(VisibleAnywhere, Category="My MyPawn Movement")
-			float MaxSpeed; //最大的速度
+			float MaxSpeed; //最大的速度, 让物体的移动速度不会无限制的增加, 也就是说物体的移动速度不会超过这个值
 
 			// 👇 这里的 * 表示解引用, 将 UStaticMeshComponent 这个指针的值给到 MyStaticMesh, FORCEINLINE 表示在编译时会进行优化
 			FORCEINLINE UStaticMeshComponent* GetStaticMeshComponent() {
@@ -38,7 +38,7 @@ class BASEUE_API AMyPawn : public APawn {
 			}
 
 			FORCEINLINE USpringArmComponent* GetSpringArmComponent() {
-				return MySpringArm; // 📦📦 用 GetStaticMeshComponent() 函数来返回【初始化的摄像机 MySpringArm】
+				return MySpringArm; // 🌟🌟 用 GetStaticMeshComponent() 函数来返回【初始化的摄像机 MySpringArm】
 			}
  
 			
@@ -55,13 +55,15 @@ class BASEUE_API AMyPawn : public APawn {
 		virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override; // 接收玩家的输入
 
 
-	// 👇 处理轴事件（用键盘控制物体） ———————————————————————————————————————————————————————————————————
+	// 👇 处理轴事件（用键盘控制物体上下左右移动 WSAD） ———————————————————————————————————————————————————————————————————
 	private:
 
 		// 👇【声明键盘事件】
 		void MoveForward(float value);
 		void MoveRight(float value);
+		FVector Velocity;  // 👈 初始化速度(偏移量）变量 Velocity, 不需要参与反射系统, 所以在编辑器内不可见, 但是可以在代码内使用
 
-		// 👇 初始化速度(偏移量）变量, 不需要参与反射系统
-		FVector Velocity; 
+		void LookUp(float vlaue);
+		void LookDown(float vlaue);
+		FVector2D MouseMoveValue;  // 👈 初始化速度(偏移量）变量 MouseMoveValue, FVector2D 可以节约一丢丢性能, 不需要参与反射系统, 所以在编辑器内不可见, 但是可以在代码内使用
 };

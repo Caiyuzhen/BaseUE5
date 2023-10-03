@@ -38,9 +38,9 @@ AMyPawn::AMyPawn() {
 		MyStaticMesh -> SetWorldScale3D(FVector(0.5f)); //设置默认的尺寸
 	}
 
-	// 🎥 初始化摄像机 ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	// 🎥 初始化摄像机(设置的是 BP_MyPawn) ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 	// 【一】设置摄像机的悬臂（可以掠过障碍物）
-	MySpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("MySpringArm"));
+	MySpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("MySpringArm")); // MySpringArm 为摄像机
 	MySpringArm -> SetupAttachment(GetStaticMeshComponent()); // 表示把 悬臂(MySpringArm) 附着到 元素(MyStaticMesh）上   =>  📦封装前的写法 MySpringArm -> SetupAttachment(MyStaticMesh);
 	MySpringArm -> SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f)); // 🌟RelativeRotation 是变量, 所以是赋值形式！ 表示摄像机的相对旋转, FRotator(-45.0f, 0.0f, 0.0f) 表示摄像机的旋转角度
 	MySpringArm -> TargetArmLength = 400.0f; // 摄像机的长度
@@ -60,6 +60,7 @@ AMyPawn::AMyPawn() {
 
 	// 【五】将摄像机设置为默认的玩家控制器 player0 为默认玩家
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	bUseControllerRotationYaw = true; // 🔥开启让 Pawn 继承 Controller!!! 相当于在蓝图中进行勾选 ☑️
 
 	// 🚗 初始化移动的速度变量倍率、移动的偏移量, Velocity 为 .h 内定义的移动偏移量 ———————————————————————————————————————————————————————————————————
 	MaxSpeed = 100.0f;
@@ -76,27 +77,56 @@ void AMyPawn::BeginPlay() {
 // Called every frame
 void AMyPawn::Tick(float DeltaTime) { // DeltaTime 为两帧之间的间隔值, 可以保证移动的帧流畅性
 	Super::Tick(DeltaTime);
-	AddActorLocalOffset(Velocity * DeltaTime, true); // * DeltaTime 为让物体的移动跟帧率脱绑, true 为详细的扫描
+	// 【定义前后移动】 🔥 Velocity 为在 .h 内声明的变量！！
+	AddActorLocalOffset(Velocity * DeltaTime, true); // * DeltaTime 为让物体的移动跟帧率脱绑, true 为详细的扫描, AddActorLocalOffset 为让物体移动的函数
+
+	// 【定义左右旋转】🔥 Yaw 为 Z 轴, 旋转 Z 来实现摄像机的左右旋转, 利用 Controller 来控制 Pawn
+	AddControllerYawInput(MouseMoveValue.X);
+
+	// 【定义上下旋转】 🔥 NewSpringArmRotation 为在 .h 内声明的变量！！ 用来记录新的旋转值 => 上下旋转, X Y Z 在虚幻中又称 Row, Pitch, Yaw, Pitch 为 Y 轴
+	FRotator NewSpringArmRotation = MySpringArm -> GetComponentRotation();// NewSpringArmRotation 为自定义的变量, 用来让物体进行旋转, MySpringArm 为悬臂, 用悬臂的旋转代替物体自身旋转
+	NewSpringArmRotation.Pitch = FMath::Clamp( // 🌟🌟FMath 方法为数学方法, Clamp 为限制的意思, 限制旋转的角度
+		NewSpringArmRotation.Pitch += MouseMoveValue.Y, // Pitch 为 Y 轴, 旋转 Y 来实现摄像机的上下旋转
+		-80.0f, 0.0f  // ⚡️ 限制旋转的角度范围
+	);
+	MySpringArm -> SetWorldRotation(NewSpringArmRotation);
 }
 
 
-// AMyPawn 的键盘输入事件
+// AMyPawn 的键盘输入事件 ———————————————————————————————————————————————————————————————————
 void AMyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// 👇【键盘事件一】将键盘输入事件跟轴事件进行绑定绑定！ ———————————————————————————————————————————————————————————————————
+	// 👇将【键盘输入事件】跟【轴事件】进行绑定！ ———————————————————————————————————————————————————————————————————
 	PlayerInputComponent -> BindAxis(TEXT("MoveForward"), this, &AMyPawn::MoveForward); //MoveForward 为 Axis 的名字, this 为绑定到当前类 &AMyPawn::MoveForward 表示函数的引用
-	PlayerInputComponent -> BindAxis(TEXT("MoveRight"), this, &AMyPawn::MoveRight); //MoveForward 为 Axis 的名字, this 为绑定到当前类 &AMyPawn::MoveForward 表示函数的引用
+	PlayerInputComponent -> BindAxis(TEXT("MoveRight"), this, &AMyPawn::MoveRight);
+	PlayerInputComponent -> BindAxis(TEXT("LookUp"), this, &AMyPawn::LookUp);
+	PlayerInputComponent -> BindAxis(TEXT("LookDown"), this, &AMyPawn::LookDown); //MoveForward 为 Axis 的名字, this 为绑定到当前类 &AMyPawn::MoveForward 表示函数的引用
 }
 
 
-// 👇 【键盘事件二】处理轴事件（在 AMyPawn::SetupPlayerInputComponent 内将键盘输入跟轴事件绑定后, 👇下面具体实现用键盘来控制物体）=> 具体实现 ———————————————————————————————————————————————————————————————————
-void AMyPawn::MoveForward(float Value) {
-	// 这里边仅更改 Velocity, 真正调用 AddActorLocalOffset 是在上边的 Tick , 因为要用到 DeltaTime 来提升帧的流畅性
-	Velocity.X = FMath::Clamp(Value, -16.0f, 16.0f) * MaxSpeed; // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入
+// 👇 【键盘前后移动事件】处理轴事件（在 AMyPawn::SetupPlayerInputComponent 内将键盘输入跟轴事件绑定后, 👇下面具体实现用键盘来控制物体）=> 具体实现 ———————————————————————————————————————————————————————————————————
+void AMyPawn::MoveForward(float value) {
+	// 👇记录值, 这里边仅更改 Velocity, 真正调用 AddActorLocalOffset 是在上边的 Tick , 因为要用到 DeltaTime 来提升帧的流畅性
+	Velocity.X = FMath::Clamp(value, -16.0f, 16.0f) * MaxSpeed; // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入
 }
 
-void AMyPawn::MoveRight(float Value) {
-	// 这里边仅更改 Velocity, 真正调用 AddActorLocalOffset 是在上边的 Tick , 因为要用到 DeltaTime 来提升帧的流畅性
-	Velocity.Y = FMath::Clamp(Value, -16.0f, 16.0f) * MaxSpeed; // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入的参数固定在 -0.1 ~ 1.0 之间
+// 👇 【键盘上下移动事件】处理轴事件
+void AMyPawn::MoveRight(float value) {
+	// 👇记录值, 这里边仅更改 Velocity, 真正调用 AddActorLocalOffset 是在上边的 Tick , 因为要用到 DeltaTime 来提升帧的流畅性
+	Velocity.Y = FMath::Clamp(value, -16.0f, 16.0f) * MaxSpeed; // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入的参数固定在 -0.1 ~ 1.0 之间
 }
+
+// 👇 【键盘左右移动事件】处理轴事件, Math::Clamp 限定夹值范围是因为不能上下旋转超过 360 度
+void AMyPawn::LookUp(float value) {
+	// 👇记录值
+	MouseMoveValue.Y = FMath::Clamp(value, -16.0f, 16.0f); // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入, 这路不用 *MaxSpeed 是因为旋转的话最多就 360度, 不会无限制的旋转
+}
+
+// 👇 【键盘左右移动事件】处理轴事件, Math::Clamp 限定夹值范围是因为不能上下旋转超过 360 度
+void AMyPawn::LookDown(float value) {
+	// 👇记录值
+	MouseMoveValue.X = FMath::Clamp(value, -16.0f, 16.0f); // FMath::Clamp(Value, -1.0f, 1.0f) 表示将输入的参数固定在 -0.1 ~ 1.0 之间, 这路不用 *MaxSpeed 是因为旋转的话最多就 360度, 不会无限制的旋转
+}
+
+
